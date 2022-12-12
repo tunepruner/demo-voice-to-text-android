@@ -11,6 +11,7 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
@@ -22,9 +23,13 @@ class SystemSpeechToTextActivity : AppCompatActivity() {
     private var speechRecognizer: SpeechRecognizer? = null
     private var editText: EditText? = null
     private var micButton: ImageView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_system_speech_to_text)
+        setSupportActionBar(findViewById(R.id.my_toolbar))
+        supportActionBar?.title = "SystemSpeechToTextActivity"
+
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
@@ -61,9 +66,11 @@ class SystemSpeechToTextActivity : AppCompatActivity() {
             override fun onPartialResults(bundle: Bundle) {}
             override fun onEvent(i: Int, bundle: Bundle) {}
         })
+
         micButton!!.setOnTouchListener(View.OnTouchListener { view, motionEvent ->
             if (motionEvent.action == MotionEvent.ACTION_UP) {
                 speechRecognizer!!.stopListening()
+                micButton!!.performClick()
             }
             if (motionEvent.action == MotionEvent.ACTION_DOWN) {
                 micButton!!.setImageResource(R.mipmap.ic_mic_black_24dp)
@@ -71,6 +78,11 @@ class SystemSpeechToTextActivity : AppCompatActivity() {
             }
             false
         })
+
+        findViewById<Button>(R.id.nav_button).setOnClickListener {
+            val intent = Intent(this, VoskActivity::class.java)
+            this.startActivity(intent)
+        }
     }
 
     override fun onDestroy() {

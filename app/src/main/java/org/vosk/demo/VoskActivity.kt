@@ -16,6 +16,7 @@ package org.vosk.demo
 import java.io.IOException
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.widget.TextView
 import android.os.Bundle
 import android.widget.ToggleButton
@@ -24,6 +25,7 @@ import android.content.pm.PackageManager
 import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.app.ActivityCompat
 import org.vosk.android.SpeechService
@@ -35,7 +37,7 @@ import org.vosk.Model
 import org.vosk.Recognizer
 import org.vosk.android.RecognitionListener
 
-class VoskActivity : Activity(), RecognitionListener {
+class VoskActivity : AppCompatActivity(), RecognitionListener {
     private var model: Model? = null
     private var speechService: SpeechService? = null
     private var speechStreamService: SpeechStreamService? = null
@@ -43,6 +45,8 @@ class VoskActivity : Activity(), RecognitionListener {
     public override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         setContentView(R.layout.main)
+        setSupportActionBar(findViewById(R.id.my_toolbar))
+        supportActionBar?.title = "VoskActivity"
 
         // Setup layout
         resultView = findViewById(R.id.result_text)
@@ -67,6 +71,11 @@ class VoskActivity : Activity(), RecognitionListener {
             )
         } else {
             initModel()
+        }
+
+        findViewById<Button>(R.id.nav_button).setOnClickListener {
+            val intent = Intent(this, SystemSpeechToTextActivity::class.java)
+            this.startActivity(intent)
         }
     }
 
@@ -107,11 +116,11 @@ class VoskActivity : Activity(), RecognitionListener {
     }
 
     override fun onResult(hypothesis: String) {
-        resultView!!.text = parseString(hypothesis)
+        resultView!!.append(parseString(hypothesis))
     }
 
     override fun onFinalResult(hypothesis: String) {
-        resultView!!.text = parseString(hypothesis)
+        resultView!!.append(parseString(hypothesis))
         setUiState(STATE_DONE)
         if (speechStreamService != null) {
             speechStreamService = null
@@ -119,19 +128,19 @@ class VoskActivity : Activity(), RecognitionListener {
     }
 
     override fun onPartialResult(hypothesis: String) {
-        resultView!!.text = parseString(hypothesis)
+        resultView!!.append(parseString(hypothesis))
     }
 
     private fun parseString(hypothesis: String): String {
         return hypothesis
-            .split('"')
+            /*.split('"')
             .filterNot { it.contentEquals("partial") }
             .filterNot { it.contentEquals("text") }
             .filterNot { it.contentEquals("\"") }
             .filterNot { it.contains("{") }
             .filterNot { it.contains("}") }
             .filterNot { it.contains(":") }
-            .get(0)
+            .get(0)*/
     }
 
     override fun onError(e: Exception) {
